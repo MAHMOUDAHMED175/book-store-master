@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0.33
+    ports:
+      - "3307:3306"
+    networks:
+      - swe_project
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: book-store
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  book-store_service:
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - swe_project
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/book-store?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+networks:
+  swe_project:
+
+
